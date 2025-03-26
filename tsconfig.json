@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // or higher (ESNext)
+    "module": "commonjs",
+    "experimentalDecorators": true, // This enables support for decorators
+    "emitDecoratorMetadata": true,  // This allows TypeORM to work properly with decorators
+    "esModuleInterop": true,
+    "strict": true, // Optional but recommended for type safety
+    "skipLibCheck": true, // Optional, can improve performance
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"],
+}

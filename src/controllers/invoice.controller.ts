@@ -1,0 +1,64 @@
+import { get } from "http";
+import { AppDataSource } from "../data-source"
+import { Invoice } from "../models/Invoice"
+
+import { Request, Response } from "express";
+import { Product } from "../models/Product";
+import { Delivery } from "../models/Devliery";
+
+const invoiceRepo = AppDataSource.getRepository(Invoice);
+const productRepo = AppDataSource.getRepository(Product);
+const deliveryRepo = AppDataSource.getRepository(Delivery);
+
+export default {
+    async createInvoice(req: Request, res: Response) {
+
+        const data = req.body;
+
+        // find and update product to the Product Entity in the payload
+        const product = await productRepo.findOneBy({ id: data.product.id });
+        data.product = product;
+
+        // create and update delivery to the Delivery Entity in the payload
+        const delivery = deliveryRepo.create(data.delivery);
+        const savedDelivery = await deliveryRepo.save(delivery);
+        data.delivery = savedDelivery;
+
+        const invoice = invoiceRepo.create(data);
+        const savedInvoice = await invoiceRepo.save(invoice);
+
+        const productId = savedInvoice[0].id;
+        res.status(201).json({message: `Invoice created ${productId}`});
+    },
+
+    async getAllInvoices(req: Request, res: Response) {
+        const invoices = await invoiceRepo.find();
+        res.json(invoices);
+    },
+
+    async getInvoiceById(req: Request, res: Response) {
+        const invoice = await invoiceRepo.findBy({ id: Number(req.params.id) });
+        if (!invoice) {
+            res.status(404).json({message: "Invoice not found"})
+            return;
+        }
+
+        res.json(invoice);
+    },
+
+
+    async updateInvoice(req: Request, res: Response) {
+        try {
+            await invoiceRepo.update(req.params.id, req.body);
+            
+            res.json({message: `Invoice updated ${req.params.id}`});
+        } catch(e) {
+            res.status(404).json({message: "Invoice not found"});
+        }
+    },
+
+    async deleteInvoice(req: Request, res: Response) {
+        await invoiceRepo.delete(req.params.id);
+        res.json({message: `Invoice deleted ${req.params.id}`});
+    } 
+}
