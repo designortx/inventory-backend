@@ -1,4 +1,4 @@
-# inventory-backend
+# Inventory ackend
 
 1. Check If MySQL Server Is Running
 
