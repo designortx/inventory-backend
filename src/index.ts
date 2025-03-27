@@ -9,6 +9,7 @@ const app = express();
 
 const port = 3000;
 
+// Initialize Database
 AppDataSource.initialize()
   .then(() => {
     console.log("Connected to PostgreSQL Database");
