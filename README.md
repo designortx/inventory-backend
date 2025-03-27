@@ -1,5 +1,12 @@
 # Inventory backend
 
+# NEW
+now using postgre SQL and the complete documentation is yet to come out
+
+Had some issues with user created with postgreSQL, it kept saying 'permission denied for schema public'. Once the the user created from PostgreSQL was given Superuser role, everything works just fine.
+
+# DEPRECATED 
+
 1. Check If MySQL Server Is Running
 
 ```sh
