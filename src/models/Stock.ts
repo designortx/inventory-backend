@@ -5,6 +5,10 @@ import { Product } from "./Product";
 
 @Entity()
 export class Stock {
+
+    @PrimaryGeneratedColumn()
+    id!: number;
+
     @ManyToOne(()=> Product, (product)=> product.stockEntries, { onDelete: "CASCADE" })
     product!: Product;
 
