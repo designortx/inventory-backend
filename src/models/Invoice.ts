@@ -16,7 +16,7 @@ export class Invoice {
     paymentMethod?: string;
 
     // Payment due date
-    @Column('int')
+    @Column()
     dueDate?: string;
 
     @Column()
