@@ -7,11 +7,44 @@ const stockRepo =  AppDataSource.getRepository(Stock);
 const productRepo =  AppDataSource.getRepository(Product);
 
 export default {
+
+    async getStock(req: Request, res: Response) {
+        res.json(await stockRepo.find());
+    },
+
+    async getStockById(req: Request, res: Response) {
+        const stockItem = await stockRepo.findOneBy({ id: Number(req.params.id) })
+        if (!stockItem) {
+            res.status(404).json({message: `Stock item with id ${req.params.id} not found `})
+            return;
+        }
+
+        res.json(stockItem);
+    },
+
+    async getStockByProductId(req: Request, res: Response) {
+        const productId = req.params.productId;
+
+        const product = await productRepo.findOneBy({ id: productId });
+        if (!product) {
+            res.status(404).json({message: `Failed to find stock item with product id ${productId}. Product not found`})
+            return;
+        }
+
+        try {
+            const stockItem = await stockRepo.findOneByOrFail({ product: product })
+
+            res.json(stockItem);
+        } catch(e) {
+            res.status(404).json({message: `Stock information with product id ${productId} not found. err: ${e}`})
+        }
+    },
+
     async updateStock(req: Request, res: Response) {
 
         const stockData = req.body;
 
-        const productId = req.params.id;
+        const productId = req.params.productId;
         const product = await productRepo.findOneBy({ id: productId });
 
         if (!product) {
