@@ -6,7 +6,7 @@ const router = Router();
 
 router.get("/", StockController.getStock);
 router.get("/:id", StockController.getStockById);
-router.get("/:productId", StockController.getStockByProductId);
+router.get("/products/:productId", StockController.getStockByProductId);
 router.put("/:productId", StockController.updateStock);
 
 export default router;
