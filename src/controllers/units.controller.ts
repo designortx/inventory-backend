@@ -106,7 +106,7 @@ export default {
             const units = repo.create(unitsDetailsRaw);
             await repo.save(units);
 
-            const unitsId = (await repo.findOneBy(units))!.id;
+            const unitsId = (await repo.getId(units[0]))!;
 
             return new LocalResponse(
                 201,

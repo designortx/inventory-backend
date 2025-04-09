@@ -1,5 +1,5 @@
 import { AppDataSource } from "../data-source";
-import { Product } from "../models/Product";
+import { Product, ProductJson } from "../models/Product";
 import { Request, Response } from "express";
 import unitsController from "./units.controller";
 import { BuyingUnits } from "../models/BuyingUnits";
@@ -73,8 +73,8 @@ export default {
         console.log(`selling units for product ${data.id}: ${JSON.stringify(data.sellingUnits)}`);
 
         // Assign the Buying and Selling unit Ids
-        data.buyingUnits.id = buyingUnitsId;
-        data.sellingUnits.id = sellingUnitsId;
+        data.buyingUnits = buyingUnitsId;
+        data.sellingUnits = sellingUnitsId;
 
         // Create or Assign to an existing PricingList
         // The LocalResponse sends a 409 status code if the pricing list already exists
@@ -128,11 +128,23 @@ export default {
             if (invoices) relationsToInclude.push("invoices");
         }
 
-        const products = await productRepo.find({
+        var products = await productRepo.find({
             relations: relationsToInclude
         });
 
-        res.json(products);
+        const updatedProducts = products.map(async (product)=> {
+            const updatedProduct = await product.toJson();
+
+            const buyingUnits = await buyingUnitsRepo.findOneBy({ id: product.buyingUnits });
+            const sellingUnits = await sellingUnitsRepo.findOneBy({ id: product.sellingUnits });
+
+            updatedProduct.buyingUnits = buyingUnits!;
+            updatedProduct.sellingUnits = sellingUnits!;
+
+            return updatedProduct;
+        });
+
+        res.json(updatedProducts);
     },
 
     async getProductById(req: Request, res: Response) {
