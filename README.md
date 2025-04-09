@@ -41,7 +41,7 @@ You can verify that the user now has superuser privileges by logging into Postgr
 
 ```bash
 sudo -u postgres psql
-
+```
 
 # DEPRECATED 
 
