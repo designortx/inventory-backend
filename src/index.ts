@@ -10,6 +10,11 @@ import buyingUnitsRoutes from './routes/buyingUnits.routes';
 import sellingUnitsRoutes from './routes/sellingUnits.routes';
 import { AppDataSource } from './data-source';
 
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
+
 const app = express();
 
 const PORT = 3000;

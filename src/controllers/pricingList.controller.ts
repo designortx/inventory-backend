@@ -2,7 +2,7 @@ import { LocalResponse } from "../controllers/helpers/localResponse.helpers";
 import { AppDataSource } from "../data-source";
 import { PricingList } from "../models/PricingList";
 
-import { Request, response, Response } from "express";
+import { Request, Response } from "express";
 
 const pricingListRepo = AppDataSource.getRepository(PricingList);
 
@@ -38,7 +38,7 @@ export default {
 
             await pricingListRepo.save(pricingList);
 
-            pricingListId = (await pricingListRepo.findOneBy(pricingList))!.id;
+            pricingListId = (await pricingListRepo.findOneBy(data))!.id;
             
             responseCode = 201;
         }
