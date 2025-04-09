@@ -7,7 +7,8 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm migration:generate -- -d ./src/data-source.ts",
     "migration:run": "npm run typeorm migration:run -- -d ./src/data-source.ts",
-    "migration:revert": "npm run typeorm migration:revert -- -d ./src/data-source.ts"
+    "migration:revert": "npm run typeorm migration:revert -- -d ./src/data-source.ts",
+    "dev": "nodemon -r ts-node/register src/index.ts"
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^22.13.13",
+    "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typeorm": "^0.3.21",
     "typescript": "^5.8.2"

@@ -1,6 +1,8 @@
-import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Product } from "./Product";
 import { Delivery } from "./Devliery";
+import { Party } from "./Party";
+import { InvoiceItem } from "./InvoiceItem";
 
 @Entity()
 export class Invoice {
@@ -23,7 +25,7 @@ export class Invoice {
     projectDetail!: string;
 
     @Column()
-    notes!: string;
+    notes?: string;
 
     @Column()
     issueDate!: string;
@@ -45,5 +47,13 @@ export class Invoice {
 
     @OneToOne(()=> Delivery, (delivery)=> delivery.invoice)
     delivery!: Delivery;
+
+    // Party
+    @ManyToOne(()=> Party, (party)=> party.invoices)
+    party!: Party;
+
+    // Invoice items
+    @OneToMany(()=> InvoiceItem, (invoiceItem)=> invoiceItem.invoice)
+    items!: InvoiceItem[];
 
 }

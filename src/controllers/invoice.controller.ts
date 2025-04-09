@@ -5,6 +5,9 @@ import { Invoice } from "../models/Invoice"
 import { Request, Response } from "express";
 import { Product } from "../models/Product";
 import { Delivery } from "../models/Devliery";
+import invoiceItemController from "./invoiceItem.controller";
+import partyController from "./party.controller";
+import { Party } from "../models/Party";
 
 const invoiceRepo = AppDataSource.getRepository(Invoice);
 const productRepo = AppDataSource.getRepository(Product);
@@ -23,6 +26,21 @@ export default {
         const delivery = deliveryRepo.create(data.delivery);
         const savedDelivery = await deliveryRepo.save(delivery);
         data.delivery = savedDelivery;
+
+        // Create and save invoice items
+        const invoiceItems = data.invoiceItems;
+        await invoiceItemController.createInvoiceItems(invoiceItems);
+
+        // Assign the Party (Vendor or Customer)
+        const partyId = data.party.id
+        const partyType = data.party.type;
+        var party: Party;
+        try {
+            party = await partyController.getParty(partyId);
+        } catch(e) {
+            res.status(404).json({message: `Invoice creation failed. ${partyType} ${partyId} not found when creating invoice`});
+            return;
+        }
 
         const invoice = invoiceRepo.create(data);
         const savedInvoice = await invoiceRepo.save(invoice);
