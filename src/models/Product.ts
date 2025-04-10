@@ -15,8 +15,8 @@ interface ProductInterface {
   stockEntries: Stock[] | undefined;
   invoices: Invoice[] | undefined;
   pricingList: PricingList,
-  buyingUnits: BuyingUnits | number;
-  sellingUnits: SellingUnits | number;
+  buyingUnits: BuyingUnits | undefined;
+  sellingUnits: SellingUnits | undefined;
 }
 
 export class ProductJson {
@@ -38,8 +38,8 @@ export class ProductJson {
   stockEntries: Stock[] | undefined;
   invoices: Invoice[] | undefined;
   pricingList: PricingList;
-  buyingUnits: BuyingUnits | number;
-  sellingUnits: SellingUnits | number;
+  buyingUnits: BuyingUnits | undefined;
+  sellingUnits: SellingUnits | undefined;
 }
 
 @Entity()
@@ -57,7 +57,17 @@ export class Product {
   /**
    * @deprecated unitPrice is deprecated and will be replaced with PricingList entity
    */
-  @Column('decimal')
+  @Column(
+    'decimal',
+    {
+      precision: 10,
+      scale: 2,
+      transformer: {
+        to: (value: number) => value, // store as is
+        from: (value: string): number => parseFloat(value), // convert to number when reading
+      }
+    }
+  )
   unitPrice!: number;
 
   @OneToMany(()=> Stock, (stock)=> stock.product)
@@ -82,10 +92,7 @@ export class Product {
   pricingList!: PricingList;
 
 
-  async toJson() {
-
-    const buyingUnitsRepo = AppDataSource.getRepository(BuyingUnits);
-    const sellingUnitsRepo = AppDataSource.getRepository(SellingUnits);
+  toJson() {
     
     return new ProductJson({
       id: this.id,
@@ -95,8 +102,8 @@ export class Product {
       stockEntries: this.stockEntries,
       invoices: this.invoices,
       pricingList: this.pricingList,
-      buyingUnits: this.buyingUnits,
-      sellingUnits: this.sellingUnits
+      buyingUnits: undefined,
+      sellingUnits: undefined
     });
   }
 }
