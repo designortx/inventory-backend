@@ -103,10 +103,10 @@ export default {
             )
         } else {
             // Create new Units
-            const units = repo.create(unitsDetailsRaw);
+            const units = repo.create(unitsDetailsRaw); 
             await repo.save(units);
 
-            const unitsId = (await repo.getId(units[0]))!;
+            const unitsId = (await repo.findOneBy(units))!.id;
 
             return new LocalResponse(
                 201,

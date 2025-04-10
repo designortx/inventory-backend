@@ -6,23 +6,43 @@ import { Invoice } from "./Invoice";
 @Entity()
 export class InvoiceItem {
 
-    @PrimaryGeneratedColumn()
-    id!: number;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @OneToOne(()=> Product, (product)=> product.id)
-    product!: string;
+  @OneToOne(()=> Product, (product)=> product.id)
+  product!: string;
 
-    @Column('int')
-    quantity!: number;
+  @Column('int')
+  quantity!: number;
 
-    @Column('decimal')
-    cost!: number;
+  @Column(
+    'decimal',
+    {
+      precision: 10,
+      scale: 2,
+      transformer: {
+        to: (value: number) => value, // store as is
+        from: (value: string): number => parseFloat(value), // convert to number when reading
+      }
+    }
+  )
+  cost!: number;
 
-    @Column('decimal')
-    amount!: number;
+  @Column(
+    'decimal',
+    {
+      precision: 10,
+      scale: 2,
+      transformer: {
+        to: (value: number) => value, // store as is
+        from: (value: string): number => parseFloat(value), // convert to number when reading
+      }
+    }
+  )
+  amount!: number;
 
-    // Pointer to the the invoice
-    @ManyToOne(()=> Invoice, (invoice)=> invoice.items)
-    invoice!: Invoice;
+  // Pointer to the the invoice
+  @ManyToOne(()=> Invoice, (invoice)=> invoice.items)
+  invoice!: Invoice;
 
 }

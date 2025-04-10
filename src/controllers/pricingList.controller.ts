@@ -14,9 +14,12 @@ export default {
         res.json(pricingLists);
     },
 
-    async createPricingList(req: Request, res: Response) : Promise<LocalResponse> {
-
-        const data = req.body;
+    /**
+     * 
+     * @param data : is te pricing list details. Takes the properties of PricingList model in JSON format
+     * @returns {Promise<LocalResponse>}
+     */
+    async createPricingList(data: any) : Promise<LocalResponse> {
 
         delete data.id;
 

@@ -7,53 +7,83 @@ import { InvoiceItem } from "./InvoiceItem";
 @Entity()
 export class Invoice {
 
-    // Invoice number
-    @PrimaryGeneratedColumn()
-    id!: number;
+  // Invoice number
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @Column()
-    poSoNumber?: string;
-    
-    @Column()
-    paymentMethod?: string;
+  @Column()
+  poSoNumber?: string;
+  
+  @Column()
+  paymentMethod?: string;
 
-    // Payment due date
-    @Column()
-    dueDate?: string;
+  // Payment due date
+  @Column()
+  dueDate?: string;
 
-    @Column()
-    projectDetail!: string;
+  @Column()
+  projectDetail!: string;
 
-    @Column()
-    notes?: string;
+  @Column()
+  notes?: string;
 
-    @Column()
-    issueDate!: string;
+  @Column()
+  issueDate!: string;
 
-    // Put proper precision and scale
-    @Column('decimal', { precision: 10, scale: 2 })
-    tax!: number;
+  // Put proper precision and scale
+  @Column(
+    'decimal',
+    {
+      precision: 10,
+      scale: 2,
+      transformer: {
+          to: (value: number) => value, // store as is
+          from: (value: string): number => parseFloat(value), // convert to number when reading
+      }
+    }
+  )
+  tax!: number;
 
-    // Put proper precision and scale
-    @Column('decimal', { precision: 10, scale: 2 })
-    discount!: number;
+  // Put proper precision and scale
+  @Column(
+    'decimal',
+    {
+      precision: 10,
+      scale: 2,
+      transformer: {
+        to: (value: number) => value, // store as is
+        from: (value: string): number => parseFloat(value), // convert to number when reading
+      }
+    }
+  )
+  discount!: number;
 
-    // TOTAL and NOT sub-total
-    @Column('decimal', { precision: 10, scale: 2 })
-    total!: number;
+  // TOTAL and NOT sub-total
+  @Column(
+  'decimal',
+    {
+      precision: 10,
+      scale: 2,
+      transformer: {
+        to: (value: number) => value, // store as is
+        from: (value: string): number => parseFloat(value), // convert to number when reading
+      }
+    }
+  )
+  total!: number;
 
-    @ManyToOne(()=> Product, (product)=> product.invoices)
-    product!: Product;
+  @ManyToOne(()=> Product, (product)=> product.invoices)
+  product!: Product;
 
-    @OneToOne(()=> Delivery, (delivery)=> delivery.invoice)
-    delivery!: Delivery;
+  @OneToOne(()=> Delivery, (delivery)=> delivery.invoice)
+  delivery!: Delivery;
 
-    // Party
-    @ManyToOne(()=> Party, (party)=> party.invoices)
-    party!: Party;
+  // Party
+  @ManyToOne(()=> Party, (party)=> party.invoices)
+  party!: Party;
 
-    // Invoice items
-    @OneToMany(()=> InvoiceItem, (invoiceItem)=> invoiceItem.invoice)
-    items!: InvoiceItem[];
+  // Invoice items
+  @OneToMany(()=> InvoiceItem, (invoiceItem)=> invoiceItem.invoice)
+  items!: InvoiceItem[];
 
 }

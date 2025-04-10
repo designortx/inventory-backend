@@ -78,7 +78,7 @@ export default {
 
         // Create or Assign to an existing PricingList
         // The LocalResponse sends a 409 status code if the pricing list already exists
-        const pricingList: LocalResponse = await pricingListController.createPricingList(req, res);
+        const pricingList: LocalResponse = await pricingListController.createPricingList(data.pricingList);
         data.pricingList = {
             ...data.pricingList,
             id: pricingList.body.id
@@ -132,19 +132,7 @@ export default {
             relations: relationsToInclude
         });
 
-        const updatedProducts = products.map(async (product)=> {
-            const updatedProduct = await product.toJson();
-
-            const buyingUnits = await buyingUnitsRepo.findOneBy({ id: product.buyingUnits });
-            const sellingUnits = await sellingUnitsRepo.findOneBy({ id: product.sellingUnits });
-
-            updatedProduct.buyingUnits = buyingUnits!;
-            updatedProduct.sellingUnits = sellingUnits!;
-
-            return updatedProduct;
-        });
-
-        res.json(updatedProducts);
+        res.json(products);
     },
 
     async getProductById(req: Request, res: Response) {
