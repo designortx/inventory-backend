@@ -19,7 +19,9 @@ const app = express();
 
 const PORT = 3000;
 
+// Body parser middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Enable CORS
 app.use((req, res, next) => {
