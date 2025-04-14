@@ -13,7 +13,7 @@ export class Stock {
   product!: Product;
 
   @Column('int')
-  quantity!: number;
+  measure!: number;
 
   @Column(
     'decimal',

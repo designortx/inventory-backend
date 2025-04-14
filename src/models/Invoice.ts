@@ -72,11 +72,11 @@ export class Invoice {
   )
   total!: number;
 
-  @ManyToOne(()=> Product, (product)=> product.invoices)
-  product!: Product;
+  // @ManyToMany(()=> Product, (product)=> product.invoices)
+  // products!: Product[];
 
-  @OneToOne(()=> Delivery, (delivery)=> delivery.invoice)
-  delivery!: Delivery;
+  @OneToOne(()=> Delivery, (delivery)=> delivery.invoice, { nullable: true })
+  delivery?: Delivery;
 
   // Party
   @ManyToOne(()=> Party, (party)=> party.invoices)

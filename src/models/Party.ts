@@ -11,6 +11,9 @@ export class Party {
     name!: string;
 
     @Column()
+    type!: string;
+
+    @Column()
     location?: string;
 
     @OneToMany(()=> Invoice, (invoice)=> invoice.party)

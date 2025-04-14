@@ -18,9 +18,11 @@ export default {
 
         const data = req.body;
 
+        console.log(`invoice body received: ${JSON.stringify(data)}`);
+
         // find and update product to the Product Entity in the payload
-        const product = await productRepo.findOneBy({ id: data.product.id });
-        data.product = product;
+        // const product = await productRepo.findOneBy({ id: data.product.id });
+        // data.product = product;
 
         // create and update delivery to the Delivery Entity in the payload
         const delivery = deliveryRepo.create(data.delivery);
@@ -28,11 +30,11 @@ export default {
         data.delivery = savedDelivery;
 
         // Create and save invoice items
-        const invoiceItems = data.invoiceItems;
+        const invoiceItems = data.items;
         await invoiceItemController.createInvoiceItems(invoiceItems);
 
         // Assign the Party (Vendor or Customer)
-        const partyId = data.party.id
+        const partyId = data.party.id;
         const partyType = data.party.type;
         var party: Party;
         try {
@@ -44,9 +46,10 @@ export default {
 
         const invoice = invoiceRepo.create(data);
         const savedInvoice = await invoiceRepo.save(invoice);
-
-        const productId = savedInvoice[0].id;
-        res.status(201).json({message: `Invoice created ${productId}`});
+        
+        // Invoice ID/Number
+        const invoiceId = savedInvoice[0].id;
+        res.status(201).json({message: `Invoice created ${invoiceId}`});
     },
 
     async getAllInvoices(req: Request, res: Response) {

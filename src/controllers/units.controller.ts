@@ -83,39 +83,27 @@ export default {
             delete unitsDetailsRaw.id;
         }
 
-        const unitsDetails = await getUnitsDetails(repo, unitsDetailsRaw);
-        // check if the Units datum exists
-        const exists = unitsDetails != undefined;
+        // const unitsDetails = await getUnitsDetails(repo, unitsDetailsRaw);
+        // // check if the Units datum exists
+        // const exists = unitsDetails != undefined;
 
         const warningMessage = warning? {
             warnings: warning
         } : {};
 
-        if (exists) {
-            // The Units datum already exists, we still return the ID of the Units
-            return new LocalResponse(
-                409,
-                {
-                    message: "Cannot create Units i.e., already exists",
-                    ...warningMessage,
-                    id: unitsDetails.id
-                }
-            )
-        } else {
-            // Create new Units
-            const units = repo.create(unitsDetailsRaw); 
-            await repo.save(units);
+        // Create new Units
+        const units = repo.create(unitsDetailsRaw); 
+        await repo.save(units);
 
-            const unitsId = (await repo.findOneBy(units))!.id;
+        const unitsId = (await repo.findOneBy(units))!.id;
 
-            return new LocalResponse(
-                201,
-                {
-                    message: "Units created!",
-                    ...warningMessage,
-                    id: unitsId
-                }
-            )
-        }
+        return new LocalResponse(
+            201,
+            {
+                message: "Units created!",
+                ...warningMessage,
+                id: unitsId
+            }
+        )
     }
 }

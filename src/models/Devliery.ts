@@ -9,10 +9,10 @@ export class Delivery {
     id!: number;
 
     @Column()
-    status!: string;
+    status?: string;
 
-    @Column()
-    dueDate!: string;
+    @Column({ nullable: true })
+    dueDate?: string;
 
     @OneToOne(()=> Invoice, (invoice)=> invoice.delivery)
     invoice!: Invoice;

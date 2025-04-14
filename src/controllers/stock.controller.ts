@@ -3,7 +3,6 @@ import { AppDataSource } from "../data-source";
 import { Stock } from "../models/Stock";
 import { Product } from "../models/Product";
 import { LocalResponse } from "./helpers/localResponse.helpers";
-import { SellingUnits } from "../models/SelingUnits";
 
 const stockRepo =  AppDataSource.getRepository(Stock);
 const productRepo =  AppDataSource.getRepository(Product);
