@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Product } from "./Product";
 import { Invoice } from "./Invoice";
 
@@ -9,11 +9,15 @@ export class InvoiceItem {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @OneToOne(()=> Product, (product)=> product.id)
-  product!: string;
+  @ManyToOne(()=> Product, (product)=> product.invoiceItems, {nullable: false})
+  product!: Product;
+
+  // Pointer to the invoice number
+  @ManyToOne(()=> Invoice, (invoice)=> invoice.items)
+  invoice!: Invoice;
 
   @Column('int')
-  quantity!: number;
+  measure!: number;
 
   @Column(
     'decimal',
@@ -40,9 +44,5 @@ export class InvoiceItem {
     }
   )
   amount!: number;
-
-  // Pointer to the the invoice
-  @ManyToOne(()=> Invoice, (invoice)=> invoice.items)
-  invoice!: Invoice;
 
 }

@@ -6,6 +6,7 @@ import { PricingList } from './PricingList';
 import { BuyingUnits } from './BuyingUnits';
 import { SellingUnits } from './SelingUnits';
 import { AppDataSource } from '../data-source';
+import { InvoiceItem } from './InvoiceItem';
 
 interface ProductInterface {
   id: string;
@@ -87,6 +88,9 @@ export class Product {
 
   @OneToMany(()=> Invoice, (invoice)=> invoice.id)
   invoices!: Invoice[];
+
+  @OneToMany(()=> InvoiceItem, (item)=> item.product)
+  invoiceItems!: Invoice[];
 
   @ManyToOne(()=> BuyingUnits, (units)=> units.id)
   /**
