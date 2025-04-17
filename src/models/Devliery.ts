@@ -9,11 +9,20 @@ export class Delivery {
     id!: number;
 
     @Column()
-    status!: string;
+    status?: string;
 
-    @Column()
-    dueDate!: string;
+    @Column({ nullable: true })
+    dueDate?: string;
 
     @OneToOne(()=> Invoice, (invoice)=> invoice.delivery)
     invoice!: Invoice;
+
+    toJSON() {
+        return {
+            id: this.id,
+            status: this.status,
+            dueDate: this.dueDate,
+            invoiceId: this.invoice?.id, // just return the ID to avoid circular reference
+        };
+    }
 }

@@ -6,10 +6,13 @@ import { PricingList } from './PricingList';
 import { BuyingUnits } from './BuyingUnits';
 import { SellingUnits } from './SelingUnits';
 import { AppDataSource } from '../data-source';
+import { InvoiceItem } from './InvoiceItem';
 
 interface ProductInterface {
   id: string;
   name: string;
+  barcode: number;
+  category?: string;
   stockingUnit: string;
   unitPrice: number;
   stockEntries: Stock[] | undefined;
@@ -23,6 +26,8 @@ export class ProductJson {
   constructor(product: ProductInterface) {
     this.id = product.id;
     this.name = product.name;
+    this.barcode = product.barcode;
+    this.category = product.category;
     this.stockingUnit = product.stockingUnit;
     this.unitPrice = product.unitPrice;
     this.stockEntries = product.stockEntries;
@@ -33,6 +38,8 @@ export class ProductJson {
   }
   id: string;
   name: string;
+  barcode: number;
+  category?: string;
   stockingUnit: string;
   unitPrice: number;
   stockEntries: Stock[] | undefined;
@@ -50,6 +57,12 @@ export class Product {
 
   @Column()
   name!: string;
+
+  @PrimaryGeneratedColumn()
+  barcode!: number;
+
+  @Column({ nullable: true })
+  category?: string;
 
   @Column()
   stockingUnit!: string;
@@ -73,8 +86,11 @@ export class Product {
   @OneToMany(()=> Stock, (stock)=> stock.product)
   stockEntries!: Stock[];
 
-  @OneToMany(()=> Invoice, (invoice)=> invoice.product)
+  @OneToMany(()=> Invoice, (invoice)=> invoice.id)
   invoices!: Invoice[];
+
+  @OneToMany(()=> InvoiceItem, (item)=> item.product)
+  invoiceItems!: Invoice[];
 
   @ManyToOne(()=> BuyingUnits, (units)=> units.id)
   /**
@@ -91,12 +107,12 @@ export class Product {
   @ManyToOne(()=> PricingList, (pricingList)=> pricingList.products)
   pricingList!: PricingList;
 
-
   toJson() {
-    
     return new ProductJson({
       id: this.id,
       name: this.name,
+      barcode: this.barcode,
+      category: this.category,
       stockingUnit: this.stockingUnit,
       unitPrice: this.unitPrice,
       stockEntries: this.stockEntries,

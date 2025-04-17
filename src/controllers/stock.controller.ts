@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Stock } from "../models/Stock";
 import { Product } from "../models/Product";
+import { LocalResponse } from "./helpers/localResponse.helpers";
 
 const stockRepo =  AppDataSource.getRepository(Stock);
 const productRepo =  AppDataSource.getRepository(Product);
@@ -9,7 +10,9 @@ const productRepo =  AppDataSource.getRepository(Product);
 export default {
 
     async getStock(req: Request, res: Response) {
-        res.json(await stockRepo.find());
+        res.json(await stockRepo.find({
+            relations: ['product', 'product.buyingUnits', 'product.sellingUnits', 'product.pricingList']
+        }));
     },
 
     async getStockById(req: Request, res: Response) {
@@ -44,8 +47,10 @@ export default {
 
         const stockData = req.body;
 
-        const productId = req.params.productId;
-        const product = await productRepo.findOneBy({ id: productId });
+        console.log(`stock data raw: ${JSON.stringify(stockData)}`)
+
+        const productId = stockData.product.id;
+        const product = await productRepo.findOneBy({ id: productId });;
 
         if (!product) {
             res.status(404).json({message: `Product with id ${productId} not found for updating stock`});
@@ -54,15 +59,37 @@ export default {
         // if product != null
         stockData.product = product;
 
-        var stock = await stockRepo.findOneBy({ product: product });
+        var response: LocalResponse;
+        
+        try {
+            var stock = await stockRepo.findOneByOrFail({ product: product });
 
-        if (!stock) {
+            // TODO: make changes before the actual parameters before
+            await stockRepo.save(stock!);
+
+            response = new LocalResponse(200, {
+                id: 0,
+                message: "Stock updated successfully"
+            });
+        } catch(e) {
             // .create() -> type List of type Entity, in this case it's Stock[]
             // Because we can pass in multiple stock rows, we'll need to explicitly select the first Stock,
             // assuming we don't update multiple stock data rows at the same time using this function (updateStock)
-            stock = stockRepo.create(stockData)[0];
+            const stock = stockRepo.create(stockData);
+
+            console.log(`stock data before details: ${JSON.stringify(stockData)}`);
+
+            await stockRepo.save(stock);
+
+            response = new LocalResponse(201, {
+                id: 0,
+                message: "Stock profile successfully created for product "
+            });
         }
 
-        await stockRepo.save(stock!);
+        res.status(response.statusCode).json({
+            message: response.body.message
+        });
+        
     }
 };

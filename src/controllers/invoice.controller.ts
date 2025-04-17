@@ -8,49 +8,106 @@ import { Delivery } from "../models/Devliery";
 import invoiceItemController from "./invoiceItem.controller";
 import partyController from "./party.controller";
 import { Party } from "../models/Party";
+import { InvoiceItem } from "../models/InvoiceItem";
 
 const invoiceRepo = AppDataSource.getRepository(Invoice);
 const productRepo = AppDataSource.getRepository(Product);
 const deliveryRepo = AppDataSource.getRepository(Delivery);
+const invoiceItemRepo = AppDataSource.getRepository(InvoiceItem);
 
 export default {
     async createInvoice(req: Request, res: Response) {
-
-        const data = req.body;
-
-        // find and update product to the Product Entity in the payload
-        const product = await productRepo.findOneBy({ id: data.product.id });
-        data.product = product;
-
-        // create and update delivery to the Delivery Entity in the payload
-        const delivery = deliveryRepo.create(data.delivery);
-        const savedDelivery = await deliveryRepo.save(delivery);
-        data.delivery = savedDelivery;
-
-        // Create and save invoice items
-        const invoiceItems = data.invoiceItems;
-        await invoiceItemController.createInvoiceItems(invoiceItems);
-
-        // Assign the Party (Vendor or Customer)
-        const partyId = data.party.id
-        const partyType = data.party.type;
-        var party: Party;
         try {
-            party = await partyController.getParty(partyId);
-        } catch(e) {
-            res.status(404).json({message: `Invoice creation failed. ${partyType} ${partyId} not found when creating invoice`});
-            return;
+            const data = req.body;
+            const invoiceId = data.id;
+        
+            console.log(`invoice body received: ${JSON.stringify(data)}`);
+        
+            // Save the delivery entity
+            const delivery = deliveryRepo.create(data.delivery);
+            const savedDelivery = await deliveryRepo.save(delivery);
+            data.delivery = savedDelivery;
+
+            console.log("delivery complete");
+        
+            // Get the Party (vendor or customer)
+            // const partyId = data.party.id;
+        
+            // const party = await partyController.getParty(partyId); // throws if not found
+            // data.party = party;
+
+            console.log(`about to create invoice, data: ${JSON.stringify({
+                ...data,
+                // items: [], // explicitly empty for now
+            })}`)
+        
+            // Create the invoice (without items yet)
+            const invoice: Invoice = invoiceRepo.create({
+                id: data.id,
+                poSoNumber: data.poSoNumber,
+                paymentMethod: data.paymentMethod,
+                dueDate: data.dueDate,
+                notes: data.notes,
+                issueDate: data.issueDate,
+                tax: data.tax,
+                discount: data.discount,
+                subTotal: data.subTotal,
+                delivery: data.delivery,
+                party: data.party,
+                items: data.items
+            });
+            
+            console.log('invoice created entity before save:', invoice);
+            console.log(`invoice items [0], product: `, invoice.items[0].product);
+    
+            // await invoiceRepo.save(invoice);
+            await invoiceRepo
+                .createQueryBuilder()
+                .insert()
+                .into(Invoice)
+                .values(invoice)
+                .execute();
+                
+            console.log(`invoice saved`);
+        
+            // Now attach the saved invoice to each item and save them
+            // const invoiceItems: InvoiceItem[] = await Promise.all(data.items.map(async (item: Partial<InvoiceItem>) => {
+            //     return new InvoiceItem(item);
+            // }));
+
+            // console.log(`invoice items format complete `, JSON.stringify(data.items));
+
+            const invoiceItemsCreate: InvoiceItem[] = invoiceItemRepo.create(data.items);
+
+            console.log("invoice items created: ", invoiceItemsCreate);
+        
+            // await invoiceItemRepo.save(invoiceItemsCreate);
+
+            await invoiceItemRepo
+                .createQueryBuilder()
+                .insert()
+                .into(InvoiceItem)
+                .values(invoiceItemsCreate)
+                .execute();
+
+            console.log("formatted invoice items saved\ninvoice creatiion successfully completed");
+        
+            res.status(201).json({
+                message: `Invoice created ${invoiceId}`,
+            });
+        } catch (error) {
+            console.error("Invoice creation error:", error);
+            res.status(500).json({
+                message: "Failed to create invoice",
+                error: error,
+            });
         }
-
-        const invoice = invoiceRepo.create(data);
-        const savedInvoice = await invoiceRepo.save(invoice);
-
-        const productId = savedInvoice[0].id;
-        res.status(201).json({message: `Invoice created ${productId}`});
     },
 
     async getAllInvoices(req: Request, res: Response) {
-        const invoices = await invoiceRepo.find();
+        const invoices = await invoiceRepo.find({
+            relations: ['items']
+        });
         res.json(invoices);
     },
 

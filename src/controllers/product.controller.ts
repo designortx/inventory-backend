@@ -16,6 +16,7 @@ const sellingUnitsRepo = AppDataSource.getRepository(SellingUnits);
 
 const pricingListRepo = AppDataSource.getRepository(PricingList);
 
+
 export default {
     /**
      * Creates a new product by handling various associated entities (buying units, selling units, pricing list)
@@ -32,6 +33,7 @@ export default {
      * {
      *   "id": "PRD-10000",
      *   "name": "Product Name",
+     *   "barcode": "0"
      *   "stockingUnit": "unit",
      *   "unitPrice": 20.5,
      *   "buyingUnits": {  buying unit details },
@@ -153,5 +155,47 @@ export default {
     async deleteProduct(res: Response, req: Request) {
         await productRepo.delete(req.params.id);
         res.json({message: "Product deleted"});
+    },
+
+    // identifier could be one of these: description, barcode, id, name
+    async itemsLookup(req: Request, res: Response) {
+
+        const searchQuery = req.body.query;
+        const identifierType = req.body.identifier;
+
+        if (!searchQuery) {
+            res.status(400).json({
+                message: `Bad request. Please provide search query [body.query]`
+            });
+            return;
+        }
+        console.log(`identifier type: ${identifierType}`)
+
+        const findQuery = identifierType =="description"? {
+            id: searchQuery.id,
+            name: searchQuery.name,
+        } : identifierType == "barcode"? {
+            barcode: searchQuery.barcode
+        } : identifierType == "id"? {
+            id: searchQuery.id
+        } : identifierType == "name"? {
+            name: searchQuery.name
+        } : null;
+
+        if (findQuery) {
+            const items = await productRepo.findBy(findQuery);
+
+            if (items.length > 0) {
+                res.json(items);
+            } else {
+                res.status(404).json({
+                    message: "Item not found"
+                });
+            }
+        } else {
+            res.status(400).json({
+                message: !identifierType? 'Please provide a search identifier type [body.identifierType]' : `Bad request. Search identifier type ${identifierType} not found. Available identifier types: 'description', 'barcode', 'id'`
+            });
+        }
     }
 }
